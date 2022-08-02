@@ -28,6 +28,8 @@ package net.runelite.client.plugins.xpupdater;
 
 import com.google.inject.Provides;
 import java.io.IOException;
+import java.sql.Date;
+import java.time.Instant;
 import java.util.EnumSet;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +51,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.apache.commons.lang3.time.DateUtils;
 
 @PluginDescriptor(
 	name = "XP Updater",
@@ -111,14 +114,25 @@ public class XpUpdaterPlugin extends Plugin
 			}
 
 			long totalXp = client.getOverallExperience();
+
+			if (!DateUtils.isSameDay(config.lastUpdatedByAccount().get(lastAccount), Date.from(Instant.now())))
+			{
+				updateExpTracker(local, totalXp);
+			}
+
 			// Don't submit update unless xp threshold is reached
 			if (Math.abs(totalXp - lastXp) > XP_THRESHOLD)
 			{
-				log.debug("Submitting update for {} accountHash {}", local.getName(), lastAccount);
-				update(lastAccount, local.getName());
-				lastXp = totalXp;
+				updateExpTracker(local, totalXp);
 			}
 		}
+	}
+
+	private void updateExpTracker(Player local, long totalXp) {
+		log.debug("Submitting update for {} accountHash {}", local.getName(), lastAccount);
+		update(lastAccount, local.getName());
+		config.lastUpdatedByAccount().put(lastAccount, Date.from(Instant.now()));
+		lastXp = totalXp;
 	}
 
 	@Subscribe

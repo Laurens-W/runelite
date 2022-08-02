@@ -28,6 +28,9 @@ import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 
+import java.util.Date;
+import java.util.Map;
+
 @ConfigGroup("xpupdater")
 public interface XpUpdaterConfig extends Config
 {
@@ -63,4 +66,13 @@ public interface XpUpdaterConfig extends Config
 	{
 		return false;
 	}
+
+	@ConfigItem(
+		position = 4,
+		keyName = "lastUpdatedByAccount",
+		name = "Last updated date per account",
+		description = "The date the xp was last updated for an account",
+		hidden = true
+	)
+	Map<Long, Date> lastUpdatedByAccount();
 }
